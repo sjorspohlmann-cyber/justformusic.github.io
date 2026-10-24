@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="nl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LIVE justformusic LIVE</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        spotify: {
+                            base: '#121212',
+                            card: '#181818',
+                            hover: '#282828',
+                            green: '#1db954',
+                            greenHover: '#1ed760',
+                            textMuted: '#b3b3b3',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #121212; }
+        ::-webkit-scrollbar-thumb { background: #282828; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3e3e3e; }
+    </style>
+</head>
+<body class="bg-spotify-base text-white min-h-screen flex flex-col select-none pb-28">
+
+    <!-- Top Navigation / Header -->
+    <header class="bg-black/40 backdrop-blur-md sticky top-0 z-40 px-6 py-4 flex items-center justify-between border-b border-white/10">
+        <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-2">
+                <span class="relative flex h-4 w-4">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-spotify-green opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-4 w-4 bg-spotify-green"></span>
+                </span>
+                <h1 id="site-header-title" class="text-xl md:text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+                    LIVE justformusic LIVE
+                </h1>
+            </div>
+            <span class="hidden md:inline-block px-2.5 py-0.5 text-xs font-semibold bg-spotify-green/20 text-spotify-green rounded-full border border-spotify-green/30">
+                LIVE STREAM ACTIVE
+            </span>
+        </div>
+        <div class="flex items-center space-x-3">
+            <button onclick="openAdminModal()" class="flex items-center space-x-2 bg-spotify-hover hover:bg-white/20 text-white px-3.5 py-2 rounded-full text-sm font-medium transition border border-white/10 shadow-sm" title="Admin Paneel">
+                <i class="fa-solid fa-gear text-spotify-green"></i>
+                <span class="hidden sm:inline">Admin</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 md:px-8 py-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Left & Center: Playlist & Announcement Banner -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Announcement / Banner Card -->
+            <div class="bg-gradient-to-r from-emerald-900/40 via-spotify-card to-spotify-card border border-spotify-green/30 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+                <div class="absolute right-0 top-0 translate-x-4 -translate-y-4 w-32 h-32 bg-spotify-green/10 rounded-full blur-2xl pointer-events-none"></div>
+                <h2 id="banner-title" class="text-2xl font-bold text-white mb-2">Welkom bij LIVE justformusic LIVE!</h2>
+                <p id="banner-text" class="text-spotify-textMuted text-sm leading-relaxed">
+                    Luister live mee naar de beste muziek, bekijk de upload-data, vraag je favoriete liedjes aan via de chat en praat gezellig mee met andere muziekliefhebbers!
+                </p>
+            </div>
+
+            <!-- Playlist Section -->
+            <div class="bg-spotify-card rounded-2xl p-6 border border-white/10 shadow-xl flex flex-col h-[500px]">
+                <div class="flex items-center justify-between mb-4 pb-3 border-b border-white/10">
+                    <h3 class="text-lg font-bold flex items-center gap-2 text-white">
+                        <i class="fa-solid fa-music text-spotify-green"></i> Beschikbare Nummers
+                    </h3>
+                    <span id="song-count" class="text-xs text-spotify-textMuted bg-spotify-hover px-2.5 py-1 rounded-full">0 nummers</span>
+                </div>
+                
+                <!-- Song List Container -->
+                <div id="songs-list" class="flex-1 overflow-y-auto space-y-2 pr-2">
+                    <div class="flex flex-col items-center justify-center h-full text-spotify-textMuted space-y-3">
+                        <i class="fa-solid fa-compact-disc fa-spin text-3xl text-spotify-green"></i>
+                        <p class="text-sm">Nummers worden geladen...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Real-time Chat & Song Requests -->
+        <div class="bg-spotify-card rounded-2xl p-6 border border-white/10 shadow-xl flex flex-col h-[612px]">
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-white/10">
+                <h3 class="text-lg font-bold flex items-center gap-2 text-white">
+                    <i class="fa-solid fa-comments text-spotify-green"></i> Live Chat & Verzoekjes
+                </h3>
+                <span class="flex h-2.5 w-2.5 relative">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-spotify-green opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-spotify-green"></span>
+                </span>
+            </div>
+
+            <!-- Chat Messages Box -->
+            <div id="chat-messages" class="flex-1 overflow-y-auto space-y-3 pr-2 mb-4 bg-spotify-base/50 p-3 rounded-xl border border-white/5 text-sm">
+                <!-- Messages populated via Firestore -->
+            </div>
+
+            <!-- Chat Input Form -->
+            <form id="chat-form" onsubmit="sendChatMessage(event)" class="space-y-2.5">
+                <div>
+                    <input type="text" id="chat-nickname" placeholder="Jouw bijnaam..." required maxlength="25"
+                        class="w-full bg-spotify-hover text-white text-xs px-3 py-2 rounded-lg border border-white/10 focus:outline-none focus:border-spotify-green transition">
+                </div>
+                <div class="flex gap-2">
+                    <input type="text" id="chat-input" placeholder="Typ een bericht of liedverzoek..." required maxlength="250"
+                        class="flex-1 bg-spotify-hover text-white text-xs px-3 py-2 rounded-lg border border-white/10 focus:outline-none focus:border-spotify-green transition">
+                    <button type="submit" class="bg-spotify-green hover:bg-spotify-greenHover text-black font-bold px-4 py-2 rounded-lg text-xs transition flex items-center justify-center">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    </main>
+
+    <!-- Spotify-style Bottom Audio Player Bar -->
+    <footer class="fixed bottom-0 left-0 right-0 bg-spotify-card border-t border-white/10 px-4 py-3 z-50 shadow-2xl">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+            
+            <!-- Currently Playing Info -->
+            <div class="flex items-center space-x-3 w-full md:w-1/4">
+                <div class="w-12 h-12 bg-spotify-hover rounded-xl flex items-center justify-center text-spotify-green shadow-inner border border-white/10">
+                    <i id="player-disc-icon" class="fa-solid fa-music text-xl"></i>
+                </div>
+                <div class="overflow-hidden">
+                    <h4 id="current-song-title" class="text-sm font-semibold text-white truncate">Geen nummer geselecteerd</h4>
+                    <p id="current-song-date" class="text-xs text-spotify-textMuted truncate">Kies een nummer uit de lijst</p>
+                </div>
+            </div>
+
+            <!-- Player Controls & Progress -->
+            <div class="flex flex-col items-center w-full md:w-2/4 space-y-1.5">
+                <div class="flex items-center space-x-4">
+                    <button onclick="togglePlay()" id="play-pause-btn" class="w-10 h-10 rounded-full bg-white text-black hover:scale-105 transition flex items-center justify-center shadow-lg disabled:opacity-50 disabled:hover:scale-100" disabled>
+                        <i id="play-pause-icon" class="fa-solid fa-play text-sm ml-0.5"></i>
+                    </button>
+                </div>
+                <div class="w-full flex items-center space-x-3 text-xs text-spotify-textMuted">
+                    <span id="current-time">0:00</span>
+                    <input type="range" id="progress-bar" value="0" max="100" step="0.1" oninput="seekAudio(this.value)"
+                        class="w-full h-1 bg-spotify-hover rounded-lg appearance-none cursor-pointer accent-spotify-green">
+                    <span id="total-duration">0:00</span>
+                </div>
+            </div>
+
+            <!-- Volume Control -->
+            <div class="hidden md:flex items-center justify-end space-x-3 w-1/4">
+                <i class="fa-solid fa-volume-high text-spotify-textMuted"></i>
+                <input type="range" id="volume-slider" min="0" max="1" step="0.05" value="1" onchange="setVolume(this.value)"
+                    class="w-24 h-1 bg-spotify-hover rounded-lg appearance-none cursor-pointer accent-spotify-green">
+            </div>
+
+        </div>
+    </footer>
+
+    <!-- Hidden Audio Element -->
+    <audio id="audio-player" ontimeupdate="updateProgress()" onended="songEnded()"></audio>
+
+    <!-- Admin Password Modal -->
+    <div id="admin-login-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-spotify-card border border-white/10 rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-lock text-spotify-green"></i> Admin Inloggen
+                </h3>
+                <button onclick="closeAdminModal()" class="text-spotify-textMuted hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <p class="text-xs text-spotify-textMuted">Voer het administrator wachtwoord in om toegang te krijgen tot het beheerpaneel.</p>
+            <form onsubmit="verifyAdminPassword(event)" class="space-y-3">
+                <input type="password" id="admin-pass-input" placeholder="Wachtwoord..." required
+                    class="w-full bg-spotify-hover text-white px-4 py-2.5 rounded-xl border border-white/10 text-sm focus:outline-none focus:border-spotify-green">
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeAdminModal()" class="px-4 py-2 text-xs font-semibold text-spotify-textMuted hover:text-white">Annuleren</button>
+                    <button type="submit" class="bg-spotify-green hover:bg-spotify-greenHover text-black px-4 py-2 rounded-xl text-xs font-bold transition">Inloggen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Panel Modal -->
+    <div id="admin-panel-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-spotify-card border border-white/10 rounded-2xl max-w-4xl w-full h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-black/20">
+                <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved text-spotify-green"></i> Admin Beheerpaneel
+                </h3>
+                <button onclick="closeAdminPanel()" class="text-spotify-textMuted hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <!-- Tabs Navigation -->
+            <div class="flex border-b border-white/10 px-6 bg-spotify-hover/30">
+                <button onclick="switchAdminTab('upload')" id="tab-btn-upload" class="py-3 px-4 text-xs font-bold border-b-2 border-spotify-green text-spotify-green transition">Nummer Uploaden</button>
+                <button onclick="switchAdminTab('songs')" id="tab-btn-songs" class="py-3 px-4 text-xs font-bold border-b-2 border-transparent text-spotify-textMuted hover:text-white transition">Nummer Beheer</button>
+                <button onclick="switchAdminTab('chat')" id="tab-btn-chat" class="py-3 px-4 text-xs font-bold border-b-2 border-transparent text-spotify-textMuted hover:text-white transition">Chat & Moderatie</button>
+                <button onclick="switchAdminTab('site')" id="tab-btn-site" class="py-3 px-4 text-xs font-bold border-b-2 border-transparent text-spotify-textMuted hover:text-white transition">Website Aanpassen</button>
+            </div>
+
+            <!-- Tabs Content -->
+            <div class="flex-1 overflow-y-auto p-6 space-y-6">
+                
+                <!-- Tab 1: Upload -->
+                <div id="admin-tab-upload" class="space-y-4">
+                    <h4 class="text-md font-semibold text-white">Nieuw MP3 Nummer Uploaden</h4>
+                    <p class="text-xs text-spotify-textMuted">Upload een MP3 bestand en geef het een titel. De upload-datum wordt automatisch toegevoegd.</p>
+                    
+                    <form onsubmit="handleSongUpload(event)" class="space-y-4 bg-spotify-base p-5 rounded-xl border border-white/5">
+                        <div class="space-y-1">
+                            <label class="text-xs font-medium text-spotify-textMuted">Titel van het nummer</label>
+                            <input type="text" id="upload-song-title" placeholder="Bijv. Artiest - Track Titel" required
+                                class="w-full bg-spotify-hover text-white px-4 py-2.5 rounded-xl border border-white/10 text-sm focus:outline-none focus:border-spotify-green">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-xs font-medium text-spotify-textMuted">MP3 Bestand</label>
+                            <input type="file" id="upload-song-file" accept="audio/mp3,audio/mpeg" required
+                                class="w-full text-xs text-spotify-textMuted file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-spotify-green file:text-black hover:file:bg-spotify-greenHover file:cursor-pointer">
+                        </div>
+                        <div id="upload-progress-container" class="hidden space-y-1">
+                            <div class="flex justify-between text-xs text-spotify-textMuted">
+                                <span id="upload-status-text">Uploaden...</span>
+                                <span id="upload-percent">0%</span>
+                            </div>
+                            <div class="w-full bg-spotify-hover h-2 rounded-full overflow-hidden">
+                                <div id="upload-bar" class="bg-spotify-green h-full w-0 transition-all duration-300"></div>
+                            </div>
+                        </div>
+                        <button type="submit" id="upload-submit-btn" class="w-full bg-spotify-green hover:bg-spotify-greenHover text-black font-bold py-3 rounded-xl text-sm transition shadow-lg">
+                            Upload naar Server
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Tab 2: Song Management -->
+                <div id="admin-tab-songs" class="hidden space-y-4">
+                    <h4 class="text-md font-semibold text-white">Beheer Geüploade Nummers</h4>
+                    <p class="text-xs text-spotify-textMuted">Hier kun je nummers die niet meer gewenst zijn direct verwijderen.</p>
+                    <div id="admin-songs-list" class="space-y-2">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Tab 3: Chat Moderation & Banning -->
+                <div id="admin-tab-chat" class="hidden space-y-6">
+                    <div>
+                        <h4 class="text-md font-semibold text-white mb-1">Chat Berichten & Moderatie</h4>
+                        <p class="text-xs text-spotify-textMuted mb-4">Verwijder ongepaste berichten of ban gebruikers op bijnaam.</p>
+                        <div id="admin-chat-messages" class="space-y-2 bg-spotify-base p-4 rounded-xl border border-white/5 max-h-60 overflow-y-auto text-xs">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="text-md font-semibold text-white mb-1">Gebande Gebruikers</h4>
+                        <p class="text-xs text-spotify-textMuted mb-3">Gebruikers in deze lijst kunnen geen berichten meer sturen in de chat.</p>
+                        <div id="admin-banned-list" class="space-y-2">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 4: Site Customization -->
+                <div id="admin-tab-site" class="hidden space-y-4">
+                    <h4 class="text-md font-semibold text-white">Website & Homepage Aanpassen</h4>
+                    <p class="text-xs text-spotify-textMuted">Pas de kopteksten en aankondigingen op de homepage direct aan.</p>
+                    
+                    <form onsubmit="saveSiteConfig(event)" class="space-y-4 bg-spotify-base p-5 rounded-xl border border-white/5">
+                        <div class="space-y-1">
+                            <label class="text-xs font-medium text-spotify-textMuted">Header Titel</label>
+                            <input type="text" id="config-header-title" required
+                                class="w-full bg-spotify-hover text-white px-4 py-2.5 rounded-xl border border-white/10 text-sm focus:outline-none focus:border-spotify-green">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-xs font-medium text-spotify-textMuted">Banner Titel</label>
+                            <input type="text" id="config-banner-title" required
+                                class="w-full bg-spotify-hover text-white px-4 py-2.5 rounded-xl border border-white/10 text-sm focus:outline-none focus:border-spotify-green">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-xs font-medium text-spotify-textMuted">Banner Beschikbare Tekst / Aankondiging</label>
+                            <textarea id="config-banner-text" rows="3" required
+                                class="w-full bg-spotify-hover text-white px-4 py-2.5 rounded-xl border border-white/10 text-sm focus:outline-none focus:border-spotify-green"></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-spotify-green hover:bg-spotify-greenHover text-black font-bold py-3 rounded-xl text-sm transition shadow-lg">
+                            Instellingen Opslaan
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Notification Modal (Replaces alert/confirm) -->
+    <div id="custom-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-spotify-card border border-white/10 rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4 text-center">
+            <div id="custom-modal-icon" class="text-4xl text-spotify-green mb-2">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <h4 id="custom-modal-title" class="text-lg font-bold text-white">Melding</h4>
+            <p id="custom-modal-message" class="text-xs text-spotify-textMuted leading-relaxed"></p>
+            <button onclick="closeCustomModal()" class="w-full bg-spotify-green hover:bg-spotify-greenHover text-black font-bold py-2.5 rounded-xl text-xs transition">
+                Begrepen
+            </button>
+        </div>
+    </div>
+
+    <!-- Firebase & App Scripts -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, addDoc, getDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
+
+        // Global Firebase and App State
+        let db, auth, storage, appId, currentUser = null;
+        let currentPlayingSong = null;
+        let songsCache = [];
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            appId = typeof __app_id !== 'undefined' ? __app_id : 'live-justformusic-live-app';
+            const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+                apiKey: "demo-key",
+                authDomain: "demo.firebaseapp.com",
+                projectId: "demo-project",
+                storageBucket: "demo.appspot.com",
+                messagingSenderId: "123456",
+                appId: "1:123:web:123"
+            };
+
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                try {
+                    storage = getStorage(app);
+                } catch(e) {
+                    console.warn("Storage not initialized or available:", e);
+                }
+
+                // Authentication
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                currentUser = auth.currentUser || { uid: 'anonymous-' + Math.random().toString(36).substring(2) };
+
+                // Initialize Listeners
+                initSongsListener();
+                initChatListener();
+                initConfigListener();
+                initBannedListener();
+
+            } catch (err) {
+                console.error("Firebase Initialization Error:", err);
+                showCustomModal("Verbindingsfout", "Kon geen verbinding maken met de database. Sommige functies werken lokaal.");
+            }
+        });
+
+        // --- FIREBASE LISTENERS & DATA ---
+
+        function initSongsListener() {
+            const songsRef = collection(db, 'artifacts', appId, 'public', 'data', 'songs');
+            onSnapshot(songsRef, (snapshot) => {
+                songsCache = [];
+                snapshot.forEach((docSnap) => {
+                    songsCache.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                // Sort by upload date descending
+                songsCache.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+                renderSongsList(songsCache);
+                renderAdminSongsList(songsCache);
+            }, (error) => {
+                console.error("Error fetching songs:", error);
+            });
+        }
+
+        function initChatListener() {
+            const chatRef = collection(db, 'artifacts', appId, 'public', 'data', 'chat');
+            onSnapshot(chatRef, (snapshot) => {
+                const messages = [];
+                snapshot.forEach((docSnap) => {
+                    messages.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+                renderChatMessages(messages);
+                renderAdminChatMessages(messages);
+            }, (error) => {
+                console.error("Error fetching chat:", error);
+            });
+        }
+
+        function initConfigListener() {
+            const configRef = doc(db, 'artifacts', appId, 'public', 'data', 'config', 'settings');
+            onSnapshot(configRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (data.headerTitle) {
+                        document.getElementById('site-header-title').innerText = data.headerTitle;
+                        document.getElementById('config-header-title').value = data.headerTitle;
+                    }
+                    if (data.bannerTitle) {
+                        document.getElementById('banner-title').innerText = data.bannerTitle;
+                        document.getElementById('config-banner-title').value = data.bannerTitle;
+                    }
+                    if (data.bannerText) {
+                        document.getElementById('banner-text').innerText = data.bannerText;
+                        document.getElementById('config-banner-text').value = data.bannerText;
+                    }
+                }
+            }, (error) => {
+                console.error("Error fetching config:", error);
+            });
+        }
+
+        let bannedUsersCache = [];
+        function initBannedListener() {
+            const bannedRef = collection(db, 'artifacts', appId, 'public', 'data', 'banned');
+            onSnapshot(bannedRef, (snapshot) => {
+                bannedUsersCache = [];
+                snapshot.forEach((docSnap) => {
+                    bannedUsersCache.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                renderAdminBannedList(bannedUsersCache);
+            }, (error) => {
+                console.error("Error fetching banned users:", error);
+            });
+        }
+
+        // --- UI RENDERING FUNCTIONS ---
+
+        function renderSongsList(songs) {
+            const container = document.getElementById('songs-list');
+            document.getElementById('song-count').innerText = `${songs.length} nummers`;
+
+            if (songs.length === 0) {
+                container.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-full text-spotify-textMuted space-y-2">
+                        <i class="fa-solid fa-music text-3xl opacity-40"></i>
+                        <p class="text-xs">Nog geen nummers geüpload door de admin.</p>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = songs.map((song, index) => `
+                <div class="flex items-center justify-between p-3 rounded-xl hover:bg-spotify-hover transition group border border-transparent hover:border-white/5">
+                    <div class="flex items-center space-x-3 overflow-hidden">
+                        <span class="text-xs text-spotify-textMuted w-5 text-right">${index + 1}</span>
+                        <div class="w-10 h-10 rounded-lg bg-spotify-base flex items-center justify-center text-spotify-green flex-shrink-0 group-hover:scale-105 transition">
+                            <i class="fa-solid fa-music"></i>
+                        </div>
+                        <div class="overflow-hidden">
+                            <h4 class="text-sm font-medium text-white truncate">${escapeHtml(song.title)}</h4>
+                            <p class="text-xs text-spotify-textMuted flex items-center gap-2">
+                                <span><i class="fa-regular fa-calendar-days"></i> ${song.uploadDate || 'Onbekend'}</span>
+                            </p>
+                        </div>
+                    </div>
+                    <button onclick="playSong('${song.id}')" class="w-9 h-9 rounded-full bg-spotify-green text-black flex items-center justify-center opacity-0 group-hover:opacity-100 hover:scale-110 transition shadow-md">
+                        <i class="fa-solid fa-play ml-0.5 text-xs"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function renderAdminSongsList(songs) {
+            const container = document.getElementById('admin-songs-list');
+            if (songs.length === 0) {
+                container.innerHTML = `<p class="text-xs text-spotify-textMuted text-center py-4">Geen nummers aanwezig.</p>`;
+                return;
+            }
+            container.innerHTML = songs.map(song => `
+                <div class="flex items-center justify-between p-3 bg-spotify-base rounded-xl border border-white/5">
+                    <div>
+                        <h5 class="text-sm font-medium text-white">${escapeHtml(song.title)}</h5>
+                        <p class="text-xs text-spotify-textMuted">Geüpload op: ${song.uploadDate || 'Onbekend'}</p>
+                    </div>
+                    <button onclick="deleteSong('${song.id}', '${song.storagePath || ''}')" class="bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">
+                        <i class="fa-solid fa-trash"></i> Verwijderen
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function renderChatMessages(messages) {
+            const container = document.getElementById('chat-messages');
+            if (messages.length === 0) {
+                container.innerHTML = `<p class="text-xs text-spotify-textMuted text-center py-6">Nog geen berichten. Start het gesprek!</p>`;
+                return;
+            }
+            container.innerHTML = messages.map(msg => `
+                <div class="space-y-0.5">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-spotify-green">${escapeHtml(msg.nickname)}</span>
+                        <span class="text-[10px] text-spotify-textMuted">${new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                    </div>
+                    <p class="text-xs text-white break-words">${escapeHtml(msg.text)}</p>
+                </div>
+            `).join('');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function renderAdminChatMessages(messages) {
+            const container = document.getElementById('admin-chat-messages');
+            if (messages.length === 0) {
+                container.innerHTML = `<p class="text-xs text-spotify-textMuted text-center">Geen chatberichten.</p>`;
+                return;
+            }
+            container.innerHTML = messages.map(msg => `
+                <div class="flex items-center justify-between bg-spotify-hover p-2 rounded-lg">
+                    <div class="overflow-hidden pr-2">
+                        <span class="font-bold text-spotify-green text-xs">${escapeHtml(msg.nickname)}:</span>
+                        <span class="text-white text-xs">${escapeHtml(msg.text)}</span>
+                    </div>
+                    <div class="flex items-center space-x-2 flex-shrink-0">
+                        <button onclick="deleteChatMessage('${msg.id}')" class="text-red-400 hover:text-red-300 text-xs px-2 py-1 bg-red-500/10 rounded">Verwijder</button>
+                        <button onclick="banUserFromChat('${escapeHtml(msg.nickname)}')" class="text-amber-400 hover:text-amber-300 text-xs px-2 py-1 bg-amber-500/10 rounded">Ban</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderAdminBannedList(bannedUsers) {
+            const container = document.getElementById('admin-banned-list');
+            if (bannedUsers.length === 0) {
+                container.innerHTML = `<p class="text-xs text-spotify-textMuted">Geen gebande gebruikers.</p>`;
+                return;
+            }
+            container.innerHTML = bannedUsers.map(b => `
+                <div class="flex items-center justify-between bg-spotify-base p-2.5 rounded-xl border border-white/5">
+                    <span class="text-xs font-semibold text-red-400">${escapeHtml(b.nickname)}</span>
+                    <button onclick="unbanUser('${b.id}')" class="text-xs text-spotify-green hover:underline">Debannen</button>
+                </div>
+            `).join('');
+        }
+
+        // --- AUDIO PLAYER LOGIC ---
+
+        window.playSong = function(songId) {
+            const song = songsCache.find(s => s.id === songId);
+            if (!song || !song.url) {
+                showCustomModal("Fout", "Kan dit nummer niet afspelen.");
+                return;
+            }
+
+            currentPlayingSong = song;
+            const audio = document.getElementById('audio-player');
+            audio.src = song.url;
+            audio.play().then(() => {
+                document.getElementById('play-pause-icon').className = "fa-solid fa-pause text-sm";
+                document.getElementById('play-pause-btn').disabled = false;
+                document.getElementById('current-song-title').innerText = song.title;
+                document.getElementById('current-song-date').innerText = `Geüpload op: ${song.uploadDate || 'Onbekend'}`;
+            }).catch(err => {
+                console.error("Playback error:", err);
+                showCustomModal("Afspeelfout", "Browser weigerde het afspelen of het bestand is ongeldig.");
+            });
+        };
+
+        window.togglePlay = function() {
+            const audio = document.getElementById('audio-player');
+            const icon = document.getElementById('play-pause-icon');
+            if (audio.paused) {
+                audio.play();
+                icon.className = "fa-solid fa-pause text-sm";
+            } else {
+                audio.pause();
+                icon.className = "fa-solid fa-play text-sm ml-0.5";
+            }
+        };
+
+        window.updateProgress = function() {
+            const audio = document.getElementById('audio-player');
+            if (!audio.duration) return;
+            const progress = (audio.currentTime / audio.duration) * 100;
+            document.getElementById('progress-bar').value = progress;
+            document.getElementById('current-time').innerText = formatTime(audio.currentTime);
+            document.getElementById('total-duration').innerText = formatTime(audio.duration);
+        };
+
+        window.seekAudio = function(val) {
+            const audio = document.getElementById('audio-player');
+            if (!audio.duration) return;
+            audio.currentTime = (val / 100) * audio.duration;
+        };
+
+        window.setVolume = function(val) {
+            const audio = document.getElementById('audio-player');
+            audio.volume = val;
+        };
+
+        window.songEnded = function() {
+            document.getElementById('play-pause-icon').className = "fa-solid fa-play text-sm ml-0.5";
+        };
+
+        function formatTime(secs) {
+            const m = Math.floor(secs / 60);
+            const s = Math.floor(secs % 60);
+            return `${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+
+        // --- CHAT LOGIC ---
+
+        window.sendChatMessage = async function(event) {
+            event.preventDefault();
+            const nicknameInput = document.getElementById('chat-nickname');
+            const textInput = document.getElementById('chat-input');
+            const nickname = nicknameInput.value.trim();
+            const text = textInput.value.trim();
+
+            if (!nickname || !text) return;
+
+            // Check if user is banned
+            const isBanned = bannedUsersCache.some(b => b.nickname.toLowerCase() === nickname.toLowerCase());
+            if (isBanned) {
+                showCustomModal("Toegang geweigerd", "Je bent geband door de beheerder en kunt geen berichten sturen.");
+                return;
+            }
+
+            try {
+                const chatRef = collection(db, 'artifacts', appId, 'public', 'data', 'chat');
+                await addDoc(chatRef, {
+                    nickname: nickname,
+                    text: text,
+                    timestamp: Date.now()
+                });
+                textInput.value = '';
+            } catch (err) {
+                console.error("Error sending message:", err);
+                showCustomModal("Fout", "Kon het bericht niet verzenden.");
+            }
+        };
+
+        // --- ADMIN PANEL LOGIC ---
+
+        window.openAdminModal = function() {
+            document.getElementById('admin-login-modal').classList.remove('hidden');
+        };
+
+        window.closeAdminModal = function() {
+            document.getElementById('admin-login-modal').classList.add('hidden');
+            document.getElementById('admin-pass-input').value = '';
+        };
+
+        window.verifyAdminPassword = function(event) {
+            event.preventDefault();
+            const pass = document.getElementById('admin-pass-input').value;
+            if (pass === '20150709') {
+                closeAdminModal();
+                document.getElementById('admin-panel-modal').classList.remove('hidden');
+            } else {
+                showCustomModal("Onjuist Wachtwoord", "Het ingevoerde wachtwoord is onjuist.");
+            }
+        };
+
+        window.closeAdminPanel = function() {
+            document.getElementById('admin-panel-modal').classList.add('hidden');
+        };
+
+        window.switchAdminTab = function(tabName) {
+            ['upload', 'songs', 'chat', 'site'].forEach(t => {
+                document.getElementById(`admin-tab-${t}`).classList.add('hidden');
+                document.getElementById(`tab-btn-${t}`).classList.remove('border-spotify-green', 'text-spotify-green');
+                document.getElementById(`tab-btn-${t}`).classList.add('border-transparent', 'text-spotify-textMuted');
+            });
+            document.getElementById(`admin-tab-${tabName}`).classList.remove('hidden');
+            document.getElementById(`tab-btn-${tabName}`).classList.add('border-spotify-green', 'text-spotify-green');
+            document.getElementById(`tab-btn-${tabName}`).classList.remove('border-transparent', 'text-spotify-textMuted');
+        };
+
+        // --- SONG UPLOAD & MANAGEMENT ---
+
+        window.handleSongUpload = async function(event) {
+            event.preventDefault();
+            const title = document.getElementById('upload-song-title').value.trim();
+            const fileInput = document.getElementById('upload-song-file');
+            const file = fileInput.files[0];
+
+            if (!file || !title) return;
+
+            const progressContainer = document.getElementById('upload-progress-container');
+            const progressBar = document.getElementById('upload-bar');
+            const statusText = document.getElementById('upload-status-text');
+            const submitBtn = document.getElementById('upload-submit-btn');
+
+            progressContainer.classList.remove('hidden');
+            submitBtn.disabled = true;
+
+            try {
+                let downloadUrl = '';
+                let storagePath = '';
+
+                // Try uploading to Firebase Storage if available, else fallback to reader base64 / blob URL for demo
+                if (storage) {
+                    statusText.innerText = "Uploaden naar Cloud Storage...";
+                    progressBar.style.width = "50%";
+                    storagePath = `songs/${Date.now()}_${file.name}`;
+                    const storageRef = ref(storage, storagePath);
+                    const snapshot = await uploadBytes(storageRef, file);
+                    downloadUrl = await getDownloadURL(snapshot.ref);
+                    progressBar.style.width = "90%";
+                } else {
+                    // Fallback using FileReader Data URL if storage bucket isn't configured
+                    statusText.innerText = "Verwerken in geheugen...";
+                    downloadUrl = await new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onload = (e) => resolve(e.target.result);
+                        reader.readAsDataURL(file);
+                    });
+                }
+
+                statusText.innerText = "Opslaan in database...";
+                progressBar.style.width = "95%";
+
+                const now = new Date();
+                const uploadDateStr = `${now.getDate().toString().padStart(2, '0')}-${(now.getMonth()+1).toString().padStart(2, '0')}-${now.getFullYear()}`;
+
+                const songsRef = collection(db, 'artifacts', appId, 'public', 'data', 'songs');
+                await addDoc(songsRef, {
+                    title: title,
+                    url: downloadUrl,
+                    storagePath: storagePath,
+                    uploadDate: uploadDateStr,
+                    createdAt: Date.now()
+                });
+
+                progressBar.style.width = "100%";
+                statusText.innerText = "Succesvol geüpload!";
+                showCustomModal("Gelukt!", "Het nummer is succesvol toegevoegd aan de lijst.");
+
+                document.getElementById('upload-song-title').value = '';
+                fileInput.value = '';
+                setTimeout(() => {
+                    progressContainer.classList.add('hidden');
+                    progressBar.style.width = '0%';
+                    submitBtn.disabled = false;
+                    switchAdminTab('songs');
+                }, 1000);
+
+            } catch (err) {
+                console.error("Upload error:", err);
+                showCustomModal("Upload Mislukt", "Er is een fout opgetreden bij het uploaden.");
+                submitBtn.disabled = false;
+                progressContainer.classList.add('hidden');
+            }
+        };
+
+        window.deleteSong = async function(songId, storagePath) {
+            try {
+                if (storage && storagePath) {
+                    const storageRef = ref(storage, storagePath);
+                    await deleteObject(storageRef).catch(e => console.warn("Storage delete failed:", e));
+                }
+                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'songs', songId));
+                showCustomModal("Verwijderd", "Het nummer is succesvol verwijderd.");
+            } catch (err) {
+                console.error("Delete error:", err);
+                showCustomModal("Fout", "Kon het nummer niet verwijderen.");
+            }
+        };
+
+        // --- CHAT MODERATION & BANNING ---
+
+        window.deleteChatMessage = async function(msgId) {
+            try {
+                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'chat', msgId));
+            } catch (err) {
+                console.error("Error deleting message:", err);
+            }
+        };
+
+        window.banUserFromChat = async function(nickname) {
+            try {
+                const bannedRef = collection(db, 'artifacts', appId, 'public', 'data', 'banned');
+                await addDoc(bannedRef, {
+                    nickname: nickname,
+                    bannedAt: Date.now()
+                });
+                showCustomModal("Gebruiker Geband", `Gebruiker "${nickname}" is succesvol geband uit de chat.`);
+            } catch (err) {
+                console.error("Error banning user:", err);
+            }
+        };
+
+        window.unbanUser = async function(banId) {
+            try {
+                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'banned', banId));
+                showCustomModal("Gedeband", "De gebruiker is weer toegelaten tot de chat.");
+            } catch (err) {
+                console.error("Error unbanning user:", err);
+            }
+        };
+
+        // --- SITE CUSTOMIZATION ---
+
+        window.saveSiteConfig = async function(event) {
+            event.preventDefault();
+            const headerTitle = document.getElementById('config-header-title').value.trim();
+            const bannerTitle = document.getElementById('config-banner-title').value.trim();
+            const bannerText = document.getElementById('config-banner-text').value.trim();
+
+            try {
+                const configRef = doc(db, 'artifacts', appId, 'public', 'data', 'config', 'settings');
+                await setDoc(configRef, {
+                    headerTitle,
+                    bannerTitle,
+                    bannerText,
+                    updatedAt: Date.now()
+                });
+                showCustomModal("Opgeslagen", "De website-instellingen zijn succesvol bijgewerkt!");
+            } catch (err) {
+                console.error("Config save error:", err);
+                showCustomModal("Fout", "Kon de instellingen niet opslaan.");
+            }
+        };
+
+        // --- UTILS ---
+
+        function showCustomModal(title, message, isSuccess = true) {
+            document.getElementById('custom-modal-title').innerText = title;
+            document.getElementById('custom-modal-message').innerText = message;
+            const icon = document.getElementById('custom-modal-icon');
+            icon.innerHTML = isSuccess ? '<i class="fa-solid fa-circle-check text-spotify-green"></i>' : '<i class="fa-solid fa-triangle-exclamation text-amber-400"></i>';
+            document.getElementById('custom-modal').classList.remove('hidden');
+        }
+
+        window.closeCustomModal = function() {
+            document.getElementById('custom-modal').classList.add('hidden');
+        };
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
